@@ -30,7 +30,8 @@
         // Paddle constants
         const paddleWidth = 10;
         const paddleHeight = 100;
-        const paddleSpeed = 5;
+        const playerPaddleSpeed = 5;
+        const opponentPaddleSpeed = 3;
 
         // Ball constants
         const ballSize = 20;
@@ -44,6 +45,13 @@
         // Ball position
         let ballX = canvas.width / 2;
         let ballY = canvas.height / 2;
+
+        // Scores
+        let playerScore = 0;
+        let opponentScore = 0;
+
+        // Opponent AI randomization factor
+        let aiRandomization = 0;
 
         // Function to draw the paddles
         function drawPaddles() {
@@ -61,14 +69,26 @@
             ctx.closePath();
         }
 
+        // Function to draw the scores
+        function drawScores() {
+            ctx.font = "32px Arial";
+            ctx.fillText(playerScore, canvas.width / 4, 50);
+            ctx.fillText(opponentScore, 3 * canvas.width / 4, 50);
+        }
+
         // Function to update the game state
         function update() {
-            // Move the opponent's paddle
-            if (opponentPaddleY + paddleHeight / 2 < ballY) {
-                opponentPaddleY += paddleSpeed;
-            } else {
-                opponentPaddleY -= paddleSpeed;
+            // Move the opponent's paddle with some randomization
+            if (Math.random() < 0.7) { // 70% chance to follow the ball
+                if (opponentPaddleY + paddleHeight / 2 < ballY - aiRandomization) {
+                    opponentPaddleY += opponentPaddleSpeed;
+                } else if (opponentPaddleY + paddleHeight / 2 > ballY + aiRandomization) {
+                    opponentPaddleY -= opponentPaddleSpeed;
+                }
             }
+
+            // Add randomization factor
+            aiRandomization = Math.random() * 100 - 50; // Random value between -15 and 15
 
             // Move the ball
             ballX += ballSpeedX;
@@ -86,6 +106,22 @@
             ) {
                 ballSpeedX = -ballSpeedX;
             }
+
+            // Check for scoring
+            if (ballX - ballSize / 2 < 0) {
+                opponentScore++;
+                resetBall();
+            } else if (ballX + ballSize / 2 > canvas.width) {
+                playerScore++;
+                resetBall();
+            }
+        }
+
+        // Function to reset the ball to the center
+        function resetBall() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = -ballSpeedX; // Change direction to serve the ball to the scoring player
         }
 
         // Function to draw everything on the canvas
@@ -93,6 +129,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawPaddles();
             drawBall();
+            drawScores();
         }
 
         // Function to run the game loop
@@ -107,7 +144,6 @@
             const mouseY = e.clientY - canvas.getBoundingClientRect().top;
             playerPaddleY = mouseY - paddleHeight / 2;
 
-            // Ensure the paddle stays within the canvas boundaries
             if (playerPaddleY < 0) {
                 playerPaddleY = 0;
             } else if (playerPaddleY > canvas.height - paddleHeight) {
