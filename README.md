@@ -11,6 +11,9 @@ Github:  https://github.com/Fox-Studios-Scratch/html-pong/tree/main
 
 
 ### update logs
+V1.3.9 - June 7, 2024
+- Difficulty Button: Added in a button to switch between dynamic and fixed difficulty modes. The AI will automatically adjust to the set difficulty.
+- Speed Bar: Added in a visual indicator (#speedBar) that dynamically adjusts to show the current AI speed/difficulty as a percentage of a maximum value.
 
 V1.3.6 - June 7, 2024
 - AI was too hard, so i added in some dynamic difficulty scaling, which adjusts the AI's difficulty based on the score difference.
