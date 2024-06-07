@@ -31,7 +31,7 @@
         const paddleWidth = 10;
         const paddleHeight = 100;
         const playerPaddleSpeed = 5;
-        const opponentPaddleSpeed = 3;
+        const baseOpponentPaddleSpeed = 4; // Base speed for opponent
 
         // Ball constants
         const ballSize = 20;
@@ -50,8 +50,8 @@
         let playerScore = 0;
         let opponentScore = 0;
 
-        // Opponent AI randomization factor
-        let aiRandomization = 0;
+        // Opponent AI precision offset
+        let aiPrecisionOffset = 0;
 
         // Function to draw the paddles
         function drawPaddles() {
@@ -78,17 +78,20 @@
 
         // Function to update the game state
         function update() {
-            // Move the opponent's paddle with some randomization
-            if (Math.random() < 0.7) { // 70% chance to follow the ball
-                if (opponentPaddleY + paddleHeight / 2 < ballY - aiRandomization) {
-                    opponentPaddleY += opponentPaddleSpeed;
-                } else if (opponentPaddleY + paddleHeight / 2 > ballY + aiRandomization) {
-                    opponentPaddleY -= opponentPaddleSpeed;
-                }
+            // Calculate score difference
+            const scoreDifference = playerScore - opponentScore;
+            
+            // Dynamic AI speed scaling
+            const opponentPaddleSpeed = baseOpponentPaddleSpeed + Math.floor(scoreDifference / 2);
+
+            // Move the opponent's paddle with dynamic speed and high precision
+            if (opponentPaddleY + paddleHeight / 2 < ballY - aiPrecisionOffset) {
+                opponentPaddleY += opponentPaddleSpeed;
+            } else if (opponentPaddleY + paddleHeight / 2 > ballY + aiPrecisionOffset) {
+                opponentPaddleY -= opponentPaddleSpeed;
             }
 
-            // Add randomization factor
-            aiRandomization = Math.random() * 100 - 50; // Random value between -15 and 15
+            aiPrecisionOffset = Math.random() * 6 - 3; // Small offset for better precision
 
             // Move the ball
             ballX += ballSpeedX;
