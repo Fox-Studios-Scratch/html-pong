@@ -18,14 +18,49 @@
         canvas {
             border: 1px solid white;
         }
+
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: white;
+        }
+
+        #speedBarContainer {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 20px;
+            background-color: gray;
+            border: 1px solid white;
+        }
+
+        #speedBar {
+            height: 100%;
+            background-color: green;
+        }
     </style>
 </head>
 <body>
+    <div id="controls">
+        <button id="toggleDifficulty">Toggle Difficulty: Dynamic</button>
+    </div>
+    <div id="speedBarContainer">
+        <div id="speedBar" style="width: 0%;"></div>
+    </div>
     <canvas id="pongCanvas" width="800" height="600"></canvas>
 
     <script>
         const canvas = document.getElementById("pongCanvas");
         const ctx = canvas.getContext("2d");
+        const toggleDifficultyButton = document.getElementById("toggleDifficulty");
+        const speedBar = document.getElementById("speedBar");
+
+        let dynamicDifficulty = true;
 
         // Paddle constants
         const paddleWidth = 10;
@@ -78,13 +113,16 @@
 
         // Function to update the game state
         function update() {
-            // Calculate score difference
-            const scoreDifference = playerScore - opponentScore;
-            
-            // Dynamic AI speed scaling
-            const opponentPaddleSpeed = baseOpponentPaddleSpeed + Math.floor(scoreDifference / 2);
+            // Determine AI speed
+            let opponentPaddleSpeed;
+            if (dynamicDifficulty) {
+                const scoreDifference = playerScore - opponentScore;
+                opponentPaddleSpeed = baseOpponentPaddleSpeed + Math.floor(scoreDifference / 2);
+            } else {
+                opponentPaddleSpeed = baseOpponentPaddleSpeed;
+            }
 
-            // Move the opponent's paddle with dynamic speed and high precision
+            // Move the opponent's paddle
             if (opponentPaddleY + paddleHeight / 2 < ballY - aiPrecisionOffset) {
                 opponentPaddleY += opponentPaddleSpeed;
             } else if (opponentPaddleY + paddleHeight / 2 > ballY + aiPrecisionOffset) {
@@ -118,6 +156,10 @@
                 playerScore++;
                 resetBall();
             }
+
+            // Update the speed bar
+            const speedPercentage = (opponentPaddleSpeed / 10) * 100;
+            speedBar.style.width = speedPercentage + '%';
         }
 
         // Function to reset the ball to the center
@@ -152,6 +194,12 @@
             } else if (playerPaddleY > canvas.height - paddleHeight) {
                 playerPaddleY = canvas.height - paddleHeight;
             }
+        });
+
+        // Toggle difficulty mode
+        toggleDifficultyButton.addEventListener("click", () => {
+            dynamicDifficulty = !dynamicDifficulty;
+            toggleDifficultyButton.textContent = `Toggle Difficulty: ${dynamicDifficulty ? "Dynamic" : "Fixed"}`;
         });
 
         // Start the game loop
